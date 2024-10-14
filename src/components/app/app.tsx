@@ -40,6 +40,7 @@ const App = () => {
         <Routes location={background || location}>
           <Route path='/' element={<ConstructorPage />} />
           <Route path='/feed' element={<Feed />} />
+          <Route path='/feed/:number' element={<OrderInfo />} />
           <Route
             path='/login'
             element={
@@ -89,7 +90,16 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path='orders/:number'
+              element={
+                <ProtectedRoute>
+                  <OrderInfo />
+                </ProtectedRoute>
+              }
+            />
           </Route>
+          <Route path='/ingredients/:id' element={<IngredientDetails />} />
           <Route path='*' element={<NotFound404 />} />
         </Routes>
         {background && (
