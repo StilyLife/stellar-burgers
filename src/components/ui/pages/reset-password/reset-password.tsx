@@ -7,6 +7,7 @@ import {
 import styles from '../common.module.css';
 import { Link } from 'react-router-dom';
 import { ResetPasswordUIProps } from './type';
+import React from 'react';
 
 export const ResetPasswordUI: FC<ResetPasswordUIProps> = ({
   errorText,

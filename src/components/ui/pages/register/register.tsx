@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import {
   Input,
   Button,
@@ -7,6 +7,7 @@ import {
 import styles from '../common.module.css';
 import { Link } from 'react-router-dom';
 import { RegisterUIProps } from './type';
+import React from 'react';
 
 export const RegisterUI: FC<RegisterUIProps> = ({
   errorText,

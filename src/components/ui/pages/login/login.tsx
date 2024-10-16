@@ -7,6 +7,7 @@ import {
 import styles from '../common.module.css';
 import { Link } from 'react-router-dom';
 import { LoginUIProps } from './type';
+import React from 'react';
 
 export const LoginUI: FC<LoginUIProps> = ({
   email,
