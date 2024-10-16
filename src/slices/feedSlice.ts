@@ -1,38 +1,80 @@
-import { getFeedsApi } from '@api';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { TOrdersData } from '@utils-types';
+import { TOrder, TIngredient } from '@utils-types';
+import { getFeedsApi, getOrderByNumberApi } from '@api';
 
-type orderState = {
-  data: TOrdersData;
-  isLoading: boolean;
+export interface feedState {
+  order: TOrder | null;
+  ingredients: TIngredient[];
+  orders: TOrder[];
+  total: number;
+  totalToday: number;
+  error: string | null | undefined;
+  loading: boolean;
+}
+
+export const initialState: feedState = {
+  order: null,
+  ingredients: [],
+  orders: [],
+  total: 0,
+  totalToday: 0,
+  error: null,
+  loading: false
 };
 
-const initialState: orderState = {
-  data: {
-    orders: [],
-    total: 0,
-    totalToday: 0
-  },
-  isLoading: true
-};
+export const getFeeds = createAsyncThunk('feed/getFeeds', getFeedsApi);
+export const getOrderByNumber = createAsyncThunk(
+  'order/getOrderByNumber',
+  getOrderByNumberApi
+);
 
-const feedSlice = createSlice({
+export const feedSlice = createSlice({
   name: 'feed',
   initialState,
   reducers: {},
+  selectors: {
+    orderFeedSelector: (state) => state.order,
+    ordersFeedSelector: (state) => state.orders,
+    totalFeedSelector: (state) => state.total,
+    totalFeedTodaySelector: (state) => state.totalToday
+  },
   extraReducers: (builder) => {
-    builder.addCase(feedThunk.fulfilled, (state, action) => {
-      state.data = action.payload;
-      state.isLoading = false;
-    });
-    builder.addCase(feedThunk.rejected, (state, action) => {
-      state.isLoading = false;
-    });
-    builder.addCase(feedThunk.pending, (state, action) => {
-      state.isLoading = true;
-    });
+    builder
+      .addCase(getFeeds.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getFeeds.fulfilled, (state, action) => {
+        state.loading = false;
+        state.total = action.payload.total;
+        state.totalToday = action.payload.totalToday;
+        state.orders = action.payload.orders;
+      })
+      .addCase(getFeeds.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      });
+
+    builder
+      .addCase(getOrderByNumber.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getOrderByNumber.fulfilled, (state, action) => {
+        state.loading = false;
+        state.order = action.payload.orders[0];
+      })
+      .addCase(getOrderByNumber.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      });
   }
 });
 
 export const feedReducer = feedSlice.reducer;
-export const feedThunk = createAsyncThunk('feed', async () => getFeedsApi());
+export const {
+  orderFeedSelector,
+  ordersFeedSelector,
+  totalFeedSelector,
+  totalFeedTodaySelector
+} = feedSlice.selectors;

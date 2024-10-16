@@ -2,7 +2,8 @@ import React from 'react';
 import { Preloader } from '@ui';
 import { useLocation } from 'react-router-dom';
 import { Navigate } from 'react-router';
-import { useSelector } from '../../services/store';
+import { userSelector, isAuthSelector } from '../../slices/userSlice';
+import { useSelector } from 'react-redux';
 
 type ProtectedRouteProps = {
   onlyUnAuth?: boolean;
@@ -14,32 +15,20 @@ export const ProtectedRoute = ({
   children
 }: ProtectedRouteProps) => {
   const location = useLocation();
-  const isAuthChecked = useSelector((state) => state.user.isAuthChecked);
-  const user = useSelector((state) => state.user.data);
+  const isAuthChecked = useSelector(isAuthSelector);
+  const user = useSelector(userSelector);
+
   if (!isAuthChecked) {
     return <Preloader />;
   }
 
   if (onlyUnAuth && user) {
-    const from = location.state?.from || { pathname: '/' };
-    const background = location.state?.from?.background || null;
-    return <Navigate replace to={from} state={{ background }} />;
+    const from = location.state?.from ?? { pathname: '/' };
+    return <Navigate replace to={from} />;
   }
 
   if (!onlyUnAuth && !user) {
-    return (
-      <Navigate
-        replace
-        to={'/login'}
-        state={{
-          from: {
-            ...location,
-            background: location.state?.background,
-            state: null
-          }
-        }}
-      />
-    );
+    return <Navigate to='/login' state={{ from: location }} />;
   }
 
   return children;

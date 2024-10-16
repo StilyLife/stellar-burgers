@@ -1,44 +1,48 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { TIngredient } from '@utils-types';
 import { getIngredientsApi } from '@api';
 
-type ingridientsState = {
-  isLoading: boolean;
-  data: TIngredient[];
+export interface ingredientsState {
+  ingredients: TIngredient[];
+  error: string | null | undefined;
+  loading: boolean;
+}
+
+const initialState: ingredientsState = {
+  ingredients: [],
+  error: null,
+  loading: false
 };
 
-const initialState: ingridientsState = {
-  data: [],
-  isLoading: false
-};
+export const getIngredientsApiThunk = createAsyncThunk(
+  'ingredients/getIngredients',
+  getIngredientsApi
+);
 
-const ingridientsSlice = createSlice({
-  name: 'ingridients',
+export const ingredientsSlice = createSlice({
+  name: 'ingredients',
   initialState,
   reducers: {},
   selectors: {
-    getIngridientById: (state, action: PayloadAction<string | undefined>) => {
-      state.data.find((element) => {
-        element._id === action.payload;
-      });
-    }
+    ingredientsSelector: (state) => state.ingredients,
+    ingredientsLoadingSelector: (state) => state.loading
   },
   extraReducers: (builder) => {
-    builder.addCase(ingridientsThunk.fulfilled, (state, action) => {
-      state.data = action.payload;
-      state.isLoading = false;
-    });
-    builder.addCase(ingridientsThunk.pending, (state, action) => {
-      state.isLoading = true;
-    });
-    builder.addCase(ingridientsThunk.rejected, (state, action) => {
-      state.isLoading = false;
-    });
+    builder
+      .addCase(getIngredientsApiThunk.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getIngredientsApiThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.ingredients = action.payload;
+      })
+      .addCase(getIngredientsApiThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      });
   }
 });
 
-export const ingridientsReducer = ingridientsSlice.reducer;
-export const { getIngridientById } = ingridientsSlice.selectors;
-export const ingridientsThunk = createAsyncThunk('ingridients', async () =>
-  getIngredientsApi()
-);
+export const ingredientsReducer = ingredientsSlice.reducer;
+export const { ingredientsSelector, ingredientsLoadingSelector } =
+  ingredientsSlice.selectors;

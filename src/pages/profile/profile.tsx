@@ -1,54 +1,42 @@
 import React from 'react';
 import { FC, SyntheticEvent, useEffect, useState } from 'react';
 import { ProfileUI } from '@ui-pages';
-import { getCookie } from '../../utils/cookie';
-import { resetProfile } from '../../slices/userSlice';
+import { userSelector } from '../../slices/userSlice';
 import { useDispatch, useSelector } from '../../services/store';
 
 export const Profile: FC = () => {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.user);
+  const user = useSelector(userSelector);
 
   const [formValue, setFormValue] = useState({
-    name: user.data?.name || '',
-    email: user.data?.email || '',
-    password: user.password
+    name: user?.name || '',
+    email: user?.email || '',
+    password: ''
   });
 
   useEffect(() => {
     setFormValue((prevState) => ({
       ...prevState,
-      name: user.data?.name || '',
-      email: user.data?.email || '',
-      password: user.password
+      name: user?.name || '',
+      email: user?.email || ''
     }));
   }, [user]);
 
   const isFormChanged =
-    formValue.name !== user.data?.name ||
-    formValue.email !== user.data?.email ||
-    formValue.password !== user.password;
+    formValue.name !== user?.name ||
+    formValue.email !== user?.email ||
+    !!formValue.password;
 
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
-    const newUser = {
-      name: formValue.name,
-      email: formValue.email,
-      password: formValue.password
-    };
-    const newPassword = {
-      password: formValue.password,
-      token: JSON.stringify(getCookie('accessToken'))
-    };
-    dispatch(resetProfile(newUser));
   };
 
   const handleCancel = (e: SyntheticEvent) => {
     e.preventDefault();
     setFormValue({
-      name: user.data?.name || '',
-      email: user.data?.email || '',
-      password: user.password
+      name: user?.name || '',
+      email: user?.email || '',
+      password: ''
     });
   };
 
@@ -68,6 +56,4 @@ export const Profile: FC = () => {
       handleInputChange={handleInputChange}
     />
   );
-
-  return null;
 };

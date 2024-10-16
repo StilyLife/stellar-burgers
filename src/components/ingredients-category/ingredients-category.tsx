@@ -4,12 +4,13 @@ import { TIngredient } from '@utils-types';
 import { TIngredientsCategoryProps } from './type';
 import { useSelector } from '../../services/store';
 import { IngredientsCategoryUI } from '../ui/ingredients-category';
+import { constructorSelector } from '../../slices/contructorSlice';
 
 export const IngredientsCategory = forwardRef<
   HTMLUListElement,
   TIngredientsCategoryProps
 >(({ title, titleRef, ingredients }, ref) => {
-  const burgerConstructor = useSelector((state) => state.constructorBuild);
+  const burgerConstructor = useSelector(constructorSelector);
 
   const ingredientsCounters = useMemo(() => {
     const { bun, ingredients } = burgerConstructor;

@@ -1,5 +1,11 @@
 import React from 'react';
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import {
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+  useParams
+} from 'react-router-dom';
 import {
   ConstructorPage,
   Feed,
@@ -13,25 +19,25 @@ import {
 } from '@pages';
 import '../../index.css';
 import styles from './app.module.css';
+import { useDispatch, useSelector } from '../../services/store';
 import { AppHeader, IngredientDetails, Modal, OrderInfo } from '@components';
 import { ProtectedRoute } from '../protected-route/protected-route';
 import { useEffect } from 'react';
-import { ingridientsThunk } from '../../slices/ingridientsSlice';
-import { authTokenThunk, checkUserAuth } from '../../slices/userSlice';
-import { useDispatch } from '../../services/store';
+import { getIngredientsApiThunk } from '../../slices/ingridientsSlice';
+import { orderFeedSelector, ordersFeedSelector } from '../../slices/feedSlice';
+import { getUser } from '../../slices/userSlice';
 
 const App = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-  const clickModalClose = () => {
-    navigate(-1);
-  };
+  const background = location.state?.background;
+  const orderData = useSelector(orderFeedSelector);
+
   useEffect(() => {
-    dispatch(authTokenThunk()).finally(() => dispatch(checkUserAuth()));
-    dispatch(ingridientsThunk());
+    dispatch(getUser());
+    dispatch(getIngredientsApiThunk());
   }, []);
-  let background = location.state && location.state.background;
 
   return (
     <>
@@ -40,7 +46,19 @@ const App = () => {
         <Routes location={background || location}>
           <Route path='/' element={<ConstructorPage />} />
           <Route path='/feed' element={<Feed />} />
-          <Route path='/feed/:number' element={<OrderInfo />} />
+          <Route
+            path='/feed/:number'
+            element={
+              <div className={styles.detailPageWrap}>
+                <p
+                  className={`text text_type_main-large ${styles.detailHeader}`}
+                >
+                  {'#' + String(orderData?.number).padStart(6, '0')}
+                </p>
+                <OrderInfo />
+              </div>
+            }
+          />
           <Route
             path='/login'
             element={
@@ -99,7 +117,19 @@ const App = () => {
               }
             />
           </Route>
-          <Route path='/ingredients/:id' element={<IngredientDetails />} />
+          <Route
+            path='/ingredients/:id'
+            element={
+              <div className={styles.detailPageWrap}>
+                <p
+                  className={`text text_type_main-large ${styles.detailHeader}`}
+                >
+                  Детали ингредиента
+                </p>
+                <IngredientDetails />
+              </div>
+            }
+          />
           <Route path='*' element={<NotFound404 />} />
         </Routes>
         {background && (
@@ -108,30 +138,35 @@ const App = () => {
               path='/feed/:number'
               element={
                 <Modal
-                  title={'Детали заказа'}
-                  onClose={clickModalClose}
-                  children={<OrderInfo />}
-                />
+                  title={'#' + String(orderData?.number).padStart(6, '0')}
+                  onClose={() => navigate(background)}
+                >
+                  <OrderInfo />
+                </Modal>
               }
             />
             <Route
               path='/profile/orders/:number'
               element={
-                <Modal
-                  title={'Детали заказа'}
-                  onClose={clickModalClose}
-                  children={<OrderInfo />}
-                />
+                <ProtectedRoute>
+                  <Modal
+                    title='Детали заказа'
+                    onClose={() => navigate(background)}
+                  >
+                    <OrderInfo />
+                  </Modal>
+                </ProtectedRoute>
               }
             />
             <Route
               path='/ingredients/:id'
               element={
                 <Modal
-                  title={'Детали ингредиента'}
-                  onClose={clickModalClose}
-                  children={<IngredientDetails />}
-                />
+                  title='Детали ингредиентов'
+                  onClose={() => navigate(background)}
+                >
+                  <IngredientDetails />
+                </Modal>
               }
             />
           </Routes>

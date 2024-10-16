@@ -1,105 +1,51 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { TOrder } from '@utils-types';
-import { getOrderByNumberApi, getOrdersApi, orderBurgerApi } from '@api';
+import { orderBurgerApi } from '@api';
 
-type orderState = {
-  ingridients: string[];
-  isLoading: boolean;
-  data: TOrder | null;
-  request: boolean;
-  success: boolean;
-  orders: TOrder[];
-  orderView: TOrder[];
+export interface IOrderState {
+  order: TOrder | null;
+  error: string | null | undefined;
+  loading: boolean;
+}
+
+export const initialState: IOrderState = {
+  order: null,
+  error: null,
+  loading: false
 };
 
-const initialState: orderState = {
-  ingridients: [],
-  isLoading: true,
-  data: null,
-  request: false,
-  success: false,
-  orders: [],
-  orderView: []
-};
+export const newOrder = createAsyncThunk('order/newOrder', orderBurgerApi);
 
-const orderSlice = createSlice({
+export const orderSlice = createSlice({
   name: 'order',
   initialState,
   reducers: {
-    createOrder: {
-      prepare: (payload: string[]) => ({
-        payload: { ...payload }
-      }),
-
-      reducer: (state, action: PayloadAction<string[]>) => {
-        state.ingridients = action.payload;
-      }
-    },
-    resetOrder: {
-      prepare: (payload?) => ({
-        payload: { payload }
-      }),
-
-      reducer: (state) => {
-        state.data = null;
-      }
+    deleteOrder: (state) => {
+      state.order = null;
+      state.loading = false;
     }
+  },
+  selectors: {
+    orderSelector: (state) => state.order,
+    orderLoadingSelector: (state) => state.loading
   },
   extraReducers: (builder) => {
     builder
-      .addCase(orderCreate.pending, (state) => {
-        state.isLoading = false;
-        state.request = true;
+      .addCase(newOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
       })
-      .addCase(orderCreate.fulfilled, (state, action) => {
-        state.data = action.payload.order;
-        state.isLoading = true;
-        localStorage.removeItem('ingridients');
-        state.success = action.payload.success;
-        state.request = false;
+      .addCase(newOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        state.order = action.payload.order;
       })
-      .addCase(orderCreate.rejected, (state, action) => {
-        state.isLoading = false;
-      })
-      .addCase(orderHistory.fulfilled, (state, action) => {
-        state.isLoading = true;
-        state.orders = action.payload;
-      })
-      .addCase(orderHistory.pending, (state) => {
-        state.isLoading = false;
-      })
-      .addCase(orderHistory.rejected, (state, action) => {
-        state.isLoading = true;
-      })
-      .addCase(orderByNumber.fulfilled, (state, action) => {
-        state.isLoading = true;
-        state.orderView = action.payload.orders;
-      })
-      .addCase(orderByNumber.pending, (state) => {
-        state.isLoading = false;
-      })
-      .addCase(orderByNumber.rejected, (state, action) => {
-        state.isLoading = true;
+      .addCase(newOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
       });
   }
 });
 
-export const orderCreate = createAsyncThunk(
-  'order-ingridients',
-  async (data: string[]) => {
-    const response = await orderBurgerApi(data);
-    return response;
-  }
-);
-
-export const orderHistory = createAsyncThunk('order-history', getOrdersApi);
-export const orderByNumber = createAsyncThunk(
-  'order-byNumber',
-  async (data: number) => {
-    const response = await getOrderByNumberApi(data);
-    return response;
-  }
-);
-
 export const orderReducer = orderSlice.reducer;
-export const { resetOrder } = orderSlice.actions;
+export const { deleteOrder } = orderSlice.actions;
+export const { orderSelector, orderLoadingSelector } = orderSlice.selectors;
