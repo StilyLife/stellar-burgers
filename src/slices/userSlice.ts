@@ -6,8 +6,7 @@ import {
   logoutApi,
   getUserApi,
   updateUserApi,
-  getOrdersApi,
-  TRegisterData
+  getOrdersApi
 } from '../utils/burger-api';
 import { deleteCookie, setCookie } from '../utils/cookie';
 
@@ -75,7 +74,7 @@ export const userSlice = createSlice({
         localStorage.setItem('refreshToken', action.payload.refreshToken);
       })
       .addCase(loginUser.rejected, (state, action) => {
-        state.error = action.error.message; //
+        state.error = action.error.message;
         state.isAuth = false;
         state.user = null;
       })
@@ -97,12 +96,12 @@ export const userSlice = createSlice({
         state.isAuth = true;
       })
       .addCase(getUser.fulfilled, (state, action) => {
-        state.error = null; //
+        state.error = null;
         state.user = action.payload.user;
         state.isAuth = true;
       })
       .addCase(getUser.rejected, (state, action) => {
-        state.error = action.error.message; //
+        state.error = action.error.message;
         state.user = null;
       })
       .addCase(updateUser.pending, (state) => {
@@ -114,7 +113,7 @@ export const userSlice = createSlice({
         state.user = action.payload.user;
       })
       .addCase(updateUser.rejected, (state, action) => {
-        state.error = action.error.message; //
+        state.error = action.error.message;
       })
       .addCase(getOrders.pending, (state) => {
         state.error = null;
@@ -125,7 +124,7 @@ export const userSlice = createSlice({
         state.orders = action.payload;
       })
       .addCase(getOrders.rejected, (state, action) => {
-        state.error = action.error.message; //
+        state.error = action.error.message;
       });
   }
 });
