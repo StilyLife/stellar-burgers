@@ -1,5 +1,5 @@
 import { FC, memo } from 'react';
-
+import React from 'react';
 import styles from './feed.module.css';
 
 import { FeedUIProps } from './type';

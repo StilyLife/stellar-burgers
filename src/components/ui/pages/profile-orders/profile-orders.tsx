@@ -1,5 +1,5 @@
 import { FC } from 'react';
-
+import React from 'react';
 import styles from './profile-orders.module.css';
 
 import { ProfileOrdersUIProps } from './type';

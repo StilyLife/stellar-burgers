@@ -1,8 +1,8 @@
+import React from 'react';
 import { FC, useState, SyntheticEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-import { forgotPasswordApi } from '@api';
 import { ForgotPasswordUI } from '@ui-pages';
+import { forgotPasswordApi } from '@api';
 
 export const ForgotPassword: FC = () => {
   const [email, setEmail] = useState('');
@@ -15,6 +15,7 @@ export const ForgotPassword: FC = () => {
 
     setError(null);
     forgotPasswordApi({ email })
+      .then((res) => console.log(res))
       .then(() => {
         localStorage.setItem('resetPassword', 'true');
         navigate('/reset-password', { replace: true });

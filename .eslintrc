@@ -16,9 +16,9 @@
         "usePrettierrc": true
       }
     ],
-    "react/react-in-jsx-scope": "off",
-    "comma-dangle": "off",
-    "use-isnan": ["error", { "enforceForSwitchCase": true }],
+    "react/react-in-jsx-scope": "warn",
+    "comma-dangle": "warn",
+    "use-isnan": ["warn", { "enforceForSwitchCase": true }],
     "react/void-dom-elements-no-children": "warn",
     "react/no-unsafe": "warn",
     "react/no-unused-state": "warn",

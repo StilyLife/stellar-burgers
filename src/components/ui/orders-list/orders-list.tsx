@@ -1,9 +1,8 @@
 import { FC } from 'react';
-
-import styles from './orders-list.module.css';
-
-import { OrdersListUIProps } from './type';
+import React from 'react';
 import { OrderCard } from '@components';
+import styles from './orders-list.module.css';
+import { OrdersListUIProps } from './type';
 
 export const OrdersListUI: FC<OrdersListUIProps> = ({ orderByDate }) => (
   <div className={`${styles.content}`}>
